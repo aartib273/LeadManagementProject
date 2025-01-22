@@ -1,0 +1,65 @@
+{
+	"name": "SQLStagingTable",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Id",
+				"type": "varchar"
+			},
+			{
+				"name": "State",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CreatedDateUtc",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "CancellationRequestDateUtc",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "CancellationDateUtc",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "CancellationRejectionDateUtc",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "SoldEmployee",
+				"type": "varchar"
+			},
+			{
+				"name": "CancelledEmployee",
+				"type": "varchar"
+			},
+			{
+				"name": "UpdatedDateUtc",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "CompanyLeads_Staging"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

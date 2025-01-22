@@ -1,0 +1,9 @@
+{
+	"name": "adf-LeadMgmt",
+	"location": "germanywestcentral",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "d31fae26-ffaf-4899-af2f-415549401894",
+		"tenantId": "6ae89e41-45a6-410c-87b2-4670c0115062"
+	}
+}

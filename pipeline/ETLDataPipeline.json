@@ -1,0 +1,413 @@
+{
+	"name": "ETLDataPipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "Migrate Excel data to AzureSql Table",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Truncate CompanyLeads_Staging",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "Id",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Id",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "State",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "State",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CreatedDateUtc",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CreatedDateUtc",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CancellationRequestDateUtc",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CancellationRequestDateUtc",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CancellationDateUtc",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CancellationDateUtc",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CancellationRejectionDateUtc",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CancellationRejectionDateUtc",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "SoldEmployee",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "SoldEmployee",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CanceledEmployee",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CanceledEmployee",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "UpdatedDateUtc",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "UpdatedDateUtc",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "UndoCancellationDateUtc",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "UndoCancellationDateUtc",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "BlobStorage",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "SQLStagingTable",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Migrate SqlData to Snowflake",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Migrate Data from SQLStagingTable to SQL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SnowflakeV2Sink",
+						"importSettings": {
+							"type": "SnowflakeImportCopyCommand"
+						}
+					},
+					"enableStaging": true,
+					"stagingSettings": {
+						"linkedServiceName": {
+							"referenceName": "SASBlobStaging",
+							"type": "LinkedServiceReference"
+						},
+						"path": "staging-files"
+					},
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "Id",
+									"type": "Guid"
+								},
+								"sink": {
+									"name": "ID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "State",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "STATE",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "CreatedDateUtc",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "CREATEDDATEUTC",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "CancellationRequestDateUtc",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "CANCELLATIONREQUESTDATEUTC",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "CancellationDateUtc",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "CANCELLATIONDATEUTC",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "CancellationRejectionDateUtc",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "CANCELLATIONREJECTIONDATEUTC",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "SoldEmployee",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SOLDEMPLOYEE",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CancelledEmployee",
+									"type": "String"
+								},
+								"sink": {
+									"name": "CANCELLEDEMPLOYEE",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "UpdatedDateUtc",
+									"type": "DateTime"
+								},
+								"sink": {
+									"name": "UPDATEDDATEUTC",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SQLCompanyLeadsTable",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "SnowflakeCompanyLeadsTable",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Migrate Data from SQLStagingTable to SQL",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "Migrate Excel data to AzureSql Table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "MigrateDataSqlStage2Sql",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine",
+					"continuationSettings": {
+						"customizedCheckpointKey": "08d1cfba-1abc-4463-b8fe-5ae03dfed224"
+					}
+				}
+			},
+			{
+				"name": "Truncate CompanyLeads_Staging",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "TruncateStageTable",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "TRUNCATE TABLE CompanyLeads_Staging\n"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "FailOnDataFlow_copy1",
+				"type": "Fail",
+				"dependsOn": [
+					{
+						"activity": "Migrate Data from SQLStagingTable to SQL",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"message": "Migration from Azure staging sql table to SQL table Failed",
+					"errorCode": "2"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2025-01-22T20:03:17Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,63 @@
+{
+	"name": "BlobStorage",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Sheet1",
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Data Enginner Task Dummy Data.xlsx",
+				"container": "blob-files"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "Id",
+				"type": "String"
+			},
+			{
+				"name": "State",
+				"type": "String"
+			},
+			{
+				"name": "CreatedDateUtc",
+				"type": "String"
+			},
+			{
+				"name": "CancellationRequestDateUtc",
+				"type": "String"
+			},
+			{
+				"name": "CancellationDateUtc",
+				"type": "String"
+			},
+			{
+				"name": "CancellationRejectionDateUtc",
+				"type": "String"
+			},
+			{
+				"name": "UndoCancellationDateUtc",
+				"type": "String"
+			},
+			{
+				"name": "CanceledEmployee",
+				"type": "String"
+			},
+			{
+				"name": "SoldEmployee",
+				"type": "String"
+			},
+			{
+				"name": "UpdatedDateUtc",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

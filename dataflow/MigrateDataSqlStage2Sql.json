@@ -1,0 +1,97 @@
+{
+	"name": "MigrateDataSqlStage2Sql",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "SQLStagingTable",
+						"type": "DatasetReference"
+					},
+					"name": "StagingSQLTable"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SQLCompanyLeadsTable",
+						"type": "DatasetReference"
+					},
+					"name": "MigrateDataToCompanyLeads"
+				}
+			],
+			"transformations": [
+				{
+					"name": "RemoveDuplicates"
+				},
+				{
+					"name": "FilterDuplicates"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Id as string,",
+				"          State as integer,",
+				"          CreatedDateUtc as timestamp,",
+				"          CancellationRequestDateUtc as timestamp,",
+				"          CancellationDateUtc as timestamp,",
+				"          CancellationRejectionDateUtc as timestamp,",
+				"          SoldEmployee as string,",
+				"          CancelledEmployee as string,",
+				"          UpdatedDateUtc as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     enableCdc: true,",
+				"     mode: 'read',",
+				"     skipInitialLoad: false,",
+				"     waterMarkColumn: 'UpdatedDateUtc',",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT\\n    Id,\\n    TRY_CAST(State AS INT) AS State,\\n    CASE\\n        WHEN CreatedDateUtc = \\'NULL\\' THEN NULL\\n        ELSE TRY_CAST(CreatedDateUtc AS DATETIME2(0))\\n    END AS CreatedDateUtc,\\n    CASE\\n        WHEN CancellationRequestDateUtc = \\'NULL\\' THEN NULL\\n        ELSE TRY_CAST(CancellationRequestDateUtc AS DATETIME2(0))\\n    END AS CancellationRequestDateUtc,\\n    CASE\\n        WHEN CancellationDateUtc = \\'NULL\\' THEN NULL\\n        ELSE TRY_CAST(CancellationDateUtc AS DATETIME2(0))\\n    END AS CancellationDateUtc,\\n    CASE\\n        WHEN CancellationRejectionDateUtc = \\'NULL\\' THEN NULL\\n        ELSE TRY_CAST(CancellationRejectionDateUtc AS DATETIME2(0))\\n    END AS CancellationRejectionDateUtc,\\n    SoldEmployee,\\n    CanceledEmployee,\\n    CASE\\n        WHEN UpdatedDateUtc = \\'NULL\\' THEN NULL\\n        ELSE TRY_CAST(UpdatedDateUtc AS DATETIME2(0))\\n    END AS UpdatedDateUtc\\nFROM\\n    CompanyLeads_Staging\\n',",
+				"     format: 'query') ~> StagingSQLTable",
+				"StagingSQLTable aggregate(groupBy(Id,",
+				"          State,",
+				"          CreatedDateUtc,",
+				"          CancellationRequestDateUtc,",
+				"          CancellationDateUtc,",
+				"          CancellationRejectionDateUtc,",
+				"          SoldEmployee,",
+				"          CancelledEmployee,",
+				"          UpdatedDateUtc),",
+				"     DuplicateCount = count()) ~> RemoveDuplicates",
+				"RemoveDuplicates filter(DuplicateCount > 1) ~> FilterDuplicates",
+				"FilterDuplicates sink(allowSchemaDrift: false,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Id as string,",
+				"          State as integer,",
+				"          CreatedDateUtc as timestamp,",
+				"          CancellationRequestDateUtc as timestamp,",
+				"          CancellationDateUtc as timestamp,",
+				"          CancellationRejectionDateUtc as timestamp,",
+				"          SoldEmployee as string,",
+				"          CancelledEmployee as string,",
+				"          UpdatedDateUtc as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Id,",
+				"          State,",
+				"          CreatedDateUtc,",
+				"          CancellationRequestDateUtc,",
+				"          CancellationDateUtc,",
+				"          CancellationRejectionDateUtc,",
+				"          SoldEmployee,",
+				"          CancelledEmployee,",
+				"          UpdatedDateUtc",
+				"     )) ~> MigrateDataToCompanyLeads"
+			]
+		}
+	}
+}

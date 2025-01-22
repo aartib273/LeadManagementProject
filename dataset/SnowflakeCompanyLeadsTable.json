@@ -1,0 +1,56 @@
+{
+	"name": "SnowflakeCompanyLeadsTable",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Snowflake_Connect",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SnowflakeV2Table",
+		"schema": [
+			{
+				"name": "ID",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "STATE",
+				"type": "NUMBER",
+				"precision": 38,
+				"scale": 0
+			},
+			{
+				"name": "CREATEDDATEUTC",
+				"type": "TIMESTAMP_NTZ"
+			},
+			{
+				"name": "CANCELLATIONREQUESTDATEUTC",
+				"type": "TIMESTAMP_NTZ"
+			},
+			{
+				"name": "CANCELLATIONDATEUTC",
+				"type": "TIMESTAMP_NTZ"
+			},
+			{
+				"name": "CANCELLATIONREJECTIONDATEUTC",
+				"type": "TIMESTAMP_NTZ"
+			},
+			{
+				"name": "SOLDEMPLOYEE",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "CANCELLEDEMPLOYEE",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "UPDATEDDATEUTC",
+				"type": "TIMESTAMP_NTZ"
+			}
+		],
+		"typeProperties": {
+			"schema": "PUBLIC",
+			"table": "COMPANYLEADS"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

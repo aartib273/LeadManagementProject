@@ -1,0 +1,17 @@
+{
+	"name": "TruncateStageTable",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"server": "sqldb-123.database.windows.net",
+			"database": "sql-LeadMgmt-dev",
+			"encrypt": "mandatory",
+			"trustServerCertificate": false,
+			"authenticationType": "SQL",
+			"userName": "aartib",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQEUwQzY5NkI2LUYyQzctNEVGQS05RDgwLTAzMzg0RDdBNkQ4NV9jMGI1ZTIwZi0xNzM2LTQzNWQtODQzMi1jMDI0OTc3ODc2YWIiDQp9"
+		}
+	}
+}
